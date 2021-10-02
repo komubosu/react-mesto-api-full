@@ -1,0 +1,17 @@
+.form__text {
+  border: none;
+  outline: none;
+  width: 358px;
+  height: 24px;
+  border-bottom: 1px solid rgba(0, 0, 0, .2);
+  font-weight: normal;
+  font-size: 14px;
+  line-height: 17px;
+  transition: 1s linear;
+}
+
+@media screen and (max-width: 520px) {
+  .form__text {
+    width: 238px;
+  }
+}

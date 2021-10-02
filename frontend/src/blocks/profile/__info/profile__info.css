@@ -1,0 +1,22 @@
+.profile__info {
+  margin: 22px 18px 25px 30px;
+  display: flex;
+}
+
+@media screen and (max-width: 540px) {
+  .profile__info {
+    margin-top: 26px;
+    margin-right: 0;
+  }
+}
+
+@media screen and (max-width: 432px) {
+  .profile__info {
+    margin: 26px auto 0;
+    padding-left: 28px;
+    text-align: center;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+}

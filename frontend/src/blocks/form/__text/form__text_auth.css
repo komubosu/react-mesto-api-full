@@ -1,0 +1,9 @@
+.form__text_auth {
+  background: none;
+  border-bottom: 2px solid #ccc;
+  color: white;
+}
+
+.form__text_auth::placeholder {
+  color: #ccc;
+}

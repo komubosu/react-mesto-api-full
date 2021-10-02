@@ -1,0 +1,10 @@
+.header__logo {
+  transition: .8s linear;
+}
+
+@media screen and (max-width: 934px) {
+  .header__logo {
+    margin-left: 27px;
+    height: 24px;
+  }
+}

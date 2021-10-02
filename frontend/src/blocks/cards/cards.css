@@ -1,0 +1,8 @@
+.cards {
+  max-width: 880px;
+  margin: auto;
+  display: grid;
+  grid-template: repeat(auto-fit, 362px) / repeat(auto-fit, 282px);
+  gap: 20px 17px;
+  justify-content: space-evenly;
+}

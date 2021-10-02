@@ -1,0 +1,12 @@
+.form__input {
+  margin: 42px 0 0;
+  width: 358px;
+  transition: 1s linear;
+}
+
+@media screen and (max-width: 520px) {
+  .form__input {
+    width: 238px;
+    margin: 63px 0 -3px;
+  }
+}
