@@ -5,7 +5,7 @@ function Login ({ onLogin }) {
   const [ buttonStatus, setButtonStatus] = React.useState('Войти');
 
   const onSubmit = (password, email) => {
-    onLogin(password, email, setButtonStatus)
+    onLogin(email, password, setButtonStatus)
   }
 
   return (

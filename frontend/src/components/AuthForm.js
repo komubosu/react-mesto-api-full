@@ -1,8 +1,8 @@
 import React from "react";
 
 function AuthForm ({ title, buttonStatus, children, onSubmit }) {
-  const [ email, setEmail ] = React.useState();
-  const [ password, setPassword ] = React.useState();
+  const [ email, setEmail ] = React.useState('');
+  const [ password, setPassword ] = React.useState('');
 
   const handleChangeEmail = (e) => {
     setEmail(e.target.value);

@@ -3,7 +3,6 @@ import { Route, Switch, useHistory } from 'react-router-dom';
 import { CurrentUserContext } from '../contexts/CurrentUserContext';
 import { LoggedInContext } from '../contexts/LoggedInContext';
 import api from '../utils/api';
-import auth from '../utils/auth';
 import Header from './Header';
 import Main from './Main';
 import Footer from './Footer';
@@ -32,9 +31,29 @@ function App() {
   const [ loggedIn, setLoggedIn] = React.useState(false);
   const history = useHistory();
 
-  const handleRegisterUser = (password, email, setButtonStatus) => {
+  React.useEffect(() => {
+    api.getUserData()
+      .then((userData) => {
+        setEmail(userData.email)
+        setCurrentUser(userData);
+      })
+      .then(() => setLoggedIn(true))
+      .then(() => history.push('/'))
+      .catch(err => console.log(err));
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  React.useEffect(() => {
+    api.getInitialCards()
+      .then(initialCards => {
+        setCards(initialCards.reverse())
+      })
+      .catch(err => console.log(err));
+  }, []);
+
+  const handleRegisterUser = (email, password, setButtonStatus) => {
     setButtonStatus('Регистрация...')
-    auth.register(password, email)
+    api.register(password, email)
       .then(() => setRegisterSuccess(true))
       .then(() => setIsInfoTooltipOpen(true))
       .then(() => history.push('/sign-in'))
@@ -44,12 +63,12 @@ function App() {
         setRegisterSuccess(false)
       })
       .finally(() => setButtonStatus('Зарегистрироваться'))
-  }
+  };
 
-  const handleLogin = (password, email, setButtonStatus) => {
+  const handleLogin = (email, password, setButtonStatus) => {
     setButtonStatus('Вход...')
-    auth.authorize(password, email)
-      .then(({ token }) => localStorage.setItem('jwt', token))
+    api.authorize(email, password)
+      .then((userData) => setCurrentUser(userData))
       .then(() => setEmail(email))
       .then(() => setLoggedIn(true))
       .then(() => history.push('/'))
@@ -59,35 +78,24 @@ function App() {
         } else console.log(`Ошибка: ${err}`)
       })
       .finally(() => setButtonStatus('Войти'))
+  };
+
+  const handleLogout = (setButtonStatus) => {
+    setButtonStatus('Выход...')
+    api.signout()
+      .then(() => history.push('/sign-in'))
+      .catch(err => console.log(err))
+      .finally(() => setButtonStatus('Выйти'))
   }
 
-  React.useEffect(() => {
-    if (localStorage.getItem('jwt')) {
-      const jwt = localStorage.getItem('jwt')
-      auth.checkToken(jwt)
-        .then(({ data }) => setEmail(data.email))
-        .then(() => setLoggedIn(true))
-        .then(() => history.push('/'))
-        .catch(err => console.log(err));
-    }
-  }, [])
-
-  React.useEffect(() => {
-    api.getInitialCards()
-      .then(initialCards => {
-        setCards(initialCards);
-      })
-      .catch(err => console.log(err));
-  }, []);
-
   const handleCardLike = (card) => {
-    const isLiked = card.likes.some(i => i._id === currentUser._id);
+    const isLiked = card.likes.some(i => i === currentUser._id);
     api.changeLikeCardStatus(card._id, isLiked)
       .then((newCard) => {
         setCards((state) => state.map((c) => c._id === card._id ? newCard : c));
       })
       .catch(err => console.log(err))
-  }
+  };
 
   const handleCardDelete = (setButtonStatus) => {
     setButtonStatus('Удаление...')
@@ -99,15 +107,7 @@ function App() {
       .then(() => closeAllPopups())
       .catch(err => console.log(err))
       .finally(() => setButtonStatus('Да'))
-  }
-
-  useEffect(() => {
-    api.getUserData()
-      .then((userData) => {
-        setCurrentUser(userData);
-      })
-      .catch(err => console.log(err))
-  }, [])
+  };
 
   const handleUpdateUser = (newUserInfo, setButtonStatus) => {
     setButtonStatus('Сохранение...')
@@ -119,7 +119,7 @@ function App() {
       .then(() => closeAllPopups())
       .catch(err => console.log(err))
       .finally(() => setButtonStatus('Сохранить'))
-  }
+  };
 
   const handleUpdateAvatar = (newAvatar, setButtonStatus) => {
     setButtonStatus('Сохранение...')
@@ -133,7 +133,7 @@ function App() {
       .finally(() => {
         setButtonStatus('Сохранить');
       })
-  }
+  };
 
   const handleAddPlaceSubmit = (newCard, setButtonStatus, ) => {
     setButtonStatus('Сохранение...')
@@ -147,41 +147,41 @@ function App() {
       .finally(() => {
         setButtonStatus('Сохранить');
       })
-  }
+  };
 
   const handleEditAvatarClick = () => {
     setIsEditAvatarPopupOpen(true);
-  }
+  };
 
   const handleEditProfileClick = () => {
     setIsEditProfilePopupOpen(true);
-  }
+  };
 
   const handleAddPlaceClick = () => {
     setIsAddPlacePopupOpen(true);
-  }
+  };
 
   const handleCardClick = (card) => {
     setIsCardImpPopupOpen(true)
     setSelectedCard(card);
-  }
+  };
 
   const handleDeleteClick = (card) => {
     setIsDeletePlacePopupOpen(true)
     setSelectedCard(card);
-  }
+  };
 
   useEffect(() => {
     const closeByEscape = (e) => {
       if (e.key === 'Escape') {
         closeAllPopups();
       }
-    }
+    };
 
-    document.addEventListener('keydown', closeByEscape)
+    document.addEventListener('keydown', closeByEscape);
 
-    return () => document.removeEventListener('keydown', closeByEscape)
-  }, [])
+    return () => document.removeEventListener('keydown', closeByEscape);
+  }, []);
 
   const closeAllPopups = () => {
     setIsEditAvatarPopupOpen(false);
@@ -191,13 +191,13 @@ function App() {
     setIsDeletePlacePopupOpen(false);
     setIsInfoTooltipOpen(false);
     setSelectedCard({});
-  }
+  };
 
   return (
     <CurrentUserContext.Provider value={currentUser}>
       <LoggedInContext.Provider value={loggedIn}>
         <div className="root">
-          <Header email={email} history={history} />
+          <Header email={email} onLogout={handleLogout} />
           <Switch>
             <ProtectedRoute
               exact
@@ -232,6 +232,6 @@ function App() {
       </LoggedInContext.Provider>
     </CurrentUserContext.Provider>
   );
-}
+};
 
 export default App;

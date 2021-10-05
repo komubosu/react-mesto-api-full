@@ -5,7 +5,7 @@ const NotFoundError = require('../errors/not-found-err');
 const ConflictError = require('../errors/conflict-err');
 const BadRequestError = require('../errors/bad-request-err');
 
-const { JWT_SECRET = 'secret-key' } = process.env;
+const { NODE_ENV, JWT_SECRET } = process.env;
 
 const handleError = (err, next) => {
   if (err.name === 'ValidationError' || err.name === 'CastError') {
@@ -32,6 +32,7 @@ module.exports.getCurrentUser = (req, res, next) => {
         name: user.name,
         about: user.about,
         avatar: user.avatar,
+        email: user.email,
         _id: user._id,
       });
     })
@@ -140,7 +141,7 @@ module.exports.login = (req, res, next) => {
     .then((user) => {
       const token = jwt.sign(
         { _id: user._id },
-        JWT_SECRET,
+        NODE_ENV === 'production' ? JWT_SECRET : 'secret-key',
         { expiresIn: '7d' },
       );
 
@@ -148,7 +149,6 @@ module.exports.login = (req, res, next) => {
         .cookie('jwt', token, {
           maxAge: 3600000 * 24 * 7,
           httpOnly: true,
-          sameSite: true,
         })
         .send({
           name: user.name,
@@ -157,5 +157,12 @@ module.exports.login = (req, res, next) => {
           _id: user._id,
         });
     })
+    .catch((err) => handleError(err, next));
+};
+
+module.exports.logout = (req, res, next) => {
+  res
+    .clearCookie('jwt')
+    .send({ message: 'Вы успешно разлогинились' })
     .catch((err) => handleError(err, next));
 };

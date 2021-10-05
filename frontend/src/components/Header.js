@@ -1,10 +1,12 @@
+import React from "react";
 import { Link, Route } from 'react-router-dom';
 import logo from '../images/logo__header.svg';
 
-function Header({ email, history }) {
-  const signOut = () => {
-    localStorage.removeItem('jwt');
-    history.push('/sign-in')
+function Header({ email, onLogout }) {
+  const [ buttonStatus, setButtonStatus ] = React.useState('Выйти')
+
+  const handleLogout = () => {
+    onLogout(setButtonStatus);
   }
 
   return (
@@ -13,7 +15,7 @@ function Header({ email, history }) {
       <Route exact path="/">
         <div className="header__info">
           <p className="header__text">{email}</p>
-          <button className="header__button" onClick={signOut}>Выйти</button>
+          <button className="header__button" onClick={handleLogout}>{buttonStatus}</button>
         </div>
       </Route>
       <Route path="/sign-up">
