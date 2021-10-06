@@ -8,6 +8,7 @@ const { errors, celebrate, Joi } = require('celebrate');
 
 const { login, logout, createUser } = require('./controllers/users');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
+const corsOptions = require('./middlewares/cors');
 const auth = require('./middlewares/auth');
 const NotFoundError = require('./errors/not-found-err');
 
@@ -20,10 +21,7 @@ mongoose.connect('mongodb://localhost:27017/mestodb', {
 })
   .catch((err) => console.log(err));
 
-app.use('*', cors({
-  origin: 'https://komubosu.mesto.nomoredomains.club',
-  credentials: true,
-}));
+app.use('*', cors(corsOptions));
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -56,12 +54,12 @@ app.post('/signup', celebrate({
 app.use('/users', auth, require('./routes/users'));
 app.use('/cards', auth, require('./routes/cards'));
 
-app.use(errorLogger);
-app.use(errors());
-
 app.use((req, res, next) => {
   next(new NotFoundError('Неверный адрес'));
 });
+
+app.use(errorLogger);
+app.use(errors());
 
 app.use((err, req, res, next) => {
   const { statusCode = 500, message } = err;
