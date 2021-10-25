@@ -12,7 +12,7 @@ const corsOptions = require('./middlewares/cors');
 const auth = require('./middlewares/auth');
 const NotFoundError = require('./errors/not-found-err');
 
-const { PORT = 3000 } = process.env;
+const { PORT = 3001 } = process.env;
 
 const app = express();
 
@@ -27,12 +27,6 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(requestLogger);
-
-app.get('/crash-test', () => {
-  setTimeout(() => {
-    throw new Error('Сервер сейчас упадет');
-  }, 0);
-});
 
 app.post('/signin', celebrate({
   body: Joi.object().keys({

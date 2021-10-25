@@ -1,4 +1,4 @@
-const whitelist = ['https://komubosu.mesto.nomoredomains.club', 'http://komubosu.mesto.nomoredomains.club'];
+const whitelist = ['http://localhost:3000'];
 
 module.exports = (req, callback) => {
   let corsOptions;
